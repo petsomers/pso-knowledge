@@ -1,6 +1,12 @@
 vault:
   path: "./MyKnowledgeBase"
 
+telegram:
+  token: "YOUR_BOT_TOKEN"
+  username: "your_bot_username"
+  allowed-user-ids:
+    - 123456789
+
 spring:
   ai:
     ollama:

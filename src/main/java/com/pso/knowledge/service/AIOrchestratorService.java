@@ -16,7 +16,7 @@ public class AIOrchestratorService {
               - Use "People" only if the note is primarily ABOUT a specific person
               - Use "Projects" only if the note is primarily ABOUT a specific project
               - Use "Stories" if the note is primarily a story, anecdote, or personal narrative
-              - Use "Concepts" for everything else (meeting notes, ideas, technical concepts, etc.)
+              - Use "Concepts" for everything else (meeting notes, ideas, technical concepts, companies, entities, etc.)
             - tags: lowercase, relevant topic tags (max 5)
             - detectedPeople: full names of people MENTIONED in the text (e.g. "Jan de Vries"). Only real person names, not roles or titles.
             - detectedProjects: project names MENTIONED in the text. Only named projects, not generic concepts.
@@ -25,7 +25,7 @@ public class AIOrchestratorService {
             - subjectName: the name of the subject this note is about. This becomes the filename.
               - For "People": the person's full name
               - For "Projects": the project name
-              - For "Concepts": a concise concept title (e.g. "Domain Driven Design", "Kubernetes Networking")
+              - For "Concepts": a concise concept title (e.g. "Domain Driven Design", "Kubernetes Networking", "Soccer Club X")
               - For "Stories": a short descriptive title for the story (e.g. "The Camping Trip Disaster", "First Day at Sony")
             - summarySentence: one sentence summary of the note's content
             
