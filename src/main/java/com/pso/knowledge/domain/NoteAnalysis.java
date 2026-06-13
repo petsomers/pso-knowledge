@@ -8,6 +8,7 @@ public record NoteAnalysis(
     List<String> detectedPeople,
     List<String> detectedProjects,
     List<String> detectedStories,
+    List<String> detectedConcepts,
     String subjectPerson,
     String subjectName,
     String summarySentence

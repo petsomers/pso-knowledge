@@ -18,17 +18,20 @@ public class EntityManagementService {
     private final Path personenPath;
     private final Path projectenPath;
     private final Path storiesPath;
+    private final Path conceptsPath;
 
     public EntityManagementService(VaultProperties vault) {
         this.personenPath = Path.of(vault.path()).resolve("People");
         this.projectenPath = Path.of(vault.path()).resolve("Projects");
         this.storiesPath = Path.of(vault.path()).resolve("Stories");
+        this.conceptsPath = Path.of(vault.path()).resolve("Concepts");
     }
 
-    public void createMissingEntities(List<String> people, List<String> projects, List<String> stories) throws IOException {
+    public void createMissingEntities(List<String> people, List<String> projects, List<String> stories, List<String> concepts) throws IOException {
         Files.createDirectories(personenPath);
         Files.createDirectories(projectenPath);
         Files.createDirectories(storiesPath);
+        Files.createDirectories(conceptsPath);
 
         for (String name : people) {
             createIfMissing(personenPath.resolve(name + ".md"), personStub(name));
@@ -38,6 +41,9 @@ public class EntityManagementService {
         }
         for (String name : stories) {
             createIfMissing(storiesPath.resolve(name + ".md"), storyStub(name));
+        }
+        for (String name : concepts) {
+            createIfMissing(conceptsPath.resolve(name + ".md"), conceptStub(name));
         }
     }
 
@@ -72,6 +78,16 @@ public class EntityManagementService {
         return """
                 ---
                 type: story
+                tags: [automatisch-aangemaakt]
+                ---
+                # %s
+                """.formatted(name);
+    }
+
+    private String conceptStub(String name) {
+        return """
+                ---
+                type: concept
                 tags: [automatisch-aangemaakt]
                 ---
                 # %s

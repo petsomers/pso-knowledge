@@ -21,6 +21,7 @@ public class AIOrchestratorService {
             - detectedPeople: full names of people MENTIONED in the text (e.g. "Jan de Vries"). Only real person names, not roles or titles.
             - detectedProjects: project names MENTIONED in the text. Only named projects, not generic concepts.
             - detectedStories: titles of stories or anecdotes found in the text. A story is a narrative about an event, experience, or memorable moment. Give each a short descriptive title.
+            - detectedConcepts: concept names MENTIONED in the text (e.g. "Domain Driven Design", "Kubernetes"). Only named concepts, ideas, or entities — not the note's own subject if category is "Concepts".
             - subjectPerson: if category is "People", the full name of the person this note is ABOUT. Otherwise null.
             - subjectName: the name of the subject this note is about. This becomes the filename.
               - For "People": the person's full name

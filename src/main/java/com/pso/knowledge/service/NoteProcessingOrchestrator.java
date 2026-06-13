@@ -40,7 +40,7 @@ public class NoteProcessingOrchestrator {
         NoteAnalysis analysis = aiService.analyze(content);
         log.info("Analysis: category={}, subject={}", analysis.category(), analysis.subjectName());
 
-        entityService.createMissingEntities(analysis.detectedPeople(), analysis.detectedProjects(), analysis.detectedStories());
+        entityService.createMissingEntities(analysis.detectedPeople(), analysis.detectedProjects(), analysis.detectedStories(), analysis.detectedConcepts());
 
         String processed = markdownService.process(content, analysis);
 
