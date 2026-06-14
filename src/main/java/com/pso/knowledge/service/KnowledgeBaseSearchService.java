@@ -1,22 +1,20 @@
 package com.pso.knowledge.service;
 
-import com.pso.knowledge.config.VaultProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 @Service
 public class KnowledgeBaseSearchService {
 
     private static final Logger log = LoggerFactory.getLogger(KnowledgeBaseSearchService.class);
-    private static final List<String> CATEGORIES = List.of("People", "Projects", "Concepts", "Stories");
     private static final String SYSTEM_PROMPT = """
             You are a knowledge base assistant. Answer the question concisely based on the provided context.
             Keep your answer short and suitable for a chat message.
@@ -24,40 +22,24 @@ public class KnowledgeBaseSearchService {
             """;
 
     private final ChatClient chatClient;
-    private final Path vaultPath;
+    private final VectorStore vectorStore;
 
-    public KnowledgeBaseSearchService(ChatClient.Builder chatClientBuilder, VaultProperties vault) {
+    public KnowledgeBaseSearchService(ChatClient.Builder chatClientBuilder, VectorStore vectorStore) {
         this.chatClient = chatClientBuilder.build();
-        this.vaultPath = Path.of(vault.path());
+        this.vectorStore = vectorStore;
     }
 
     public String search(String question) {
-        String context = loadVaultContent();
+        List<Document> results = vectorStore.similaritySearch(
+                SearchRequest.builder().query(question).topK(5).build());
+        String context = results.stream()
+                .map(doc -> "--- " + doc.getId() + " ---\n" + doc.getText())
+                .collect(Collectors.joining("\n\n"));
+        log.debug("Retrieved {} documents for query", results.size());
         return chatClient.prompt()
                 .system(SYSTEM_PROMPT)
                 .user("CONTEXT:\n" + context + "\n\nQUESTION: " + question)
                 .call()
                 .content();
-    }
-
-    private String loadVaultContent() {
-        var sb = new StringBuilder();
-        for (String category : CATEGORIES) {
-            Path dir = vaultPath.resolve(category);
-            if (!Files.isDirectory(dir)) continue;
-            try (Stream<Path> files = Files.list(dir)) {
-                files.filter(p -> p.toString().endsWith(".md")).sorted().forEach(p -> {
-                    try {
-                        sb.append("--- ").append(category).append("/").append(p.getFileName()).append(" ---\n");
-                        sb.append(Files.readString(p)).append("\n\n");
-                    } catch (IOException e) {
-                        log.warn("Failed to read {}", p, e);
-                    }
-                });
-            } catch (IOException e) {
-                log.warn("Failed to list {}", dir, e);
-            }
-        }
-        return sb.toString();
     }
 }

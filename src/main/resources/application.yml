@@ -15,3 +15,6 @@ spring:
         options:
           model: ${ollama_model}
           temperature: 0.1
+      embedding:
+        options:
+          model: nomic-embed-text

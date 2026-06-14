@@ -19,17 +19,20 @@ public class NoteProcessingOrchestrator {
     private final EntityManagementService entityService;
     private final MarkdownProcessorService markdownService;
     private final IndexService indexService;
+    private final VaultIngestionService ingestionService;
     private final Path vaultPath;
 
     public NoteProcessingOrchestrator(AIOrchestratorService aiService,
                                       EntityManagementService entityService,
                                       MarkdownProcessorService markdownService,
                                       IndexService indexService,
+                                      VaultIngestionService ingestionService,
                                       VaultProperties vault) {
         this.aiService = aiService;
         this.entityService = entityService;
         this.markdownService = markdownService;
         this.indexService = indexService;
+        this.ingestionService = ingestionService;
         this.vaultPath = Path.of(vault.path());
     }
 
@@ -57,6 +60,7 @@ public class NoteProcessingOrchestrator {
 
         Files.delete(file);
         indexService.regenerateIndex(targetFile.getParent(), analysis.category());
+        ingestionService.ingestFileAndSave(targetFile);
         log.info("Processed into {}/{}", analysis.category(), analysis.subjectName());
     }
 }

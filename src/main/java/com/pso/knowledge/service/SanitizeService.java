@@ -50,11 +50,14 @@ public class SanitizeService {
 
     private final ChatClient chatClient;
     private final IndexService indexService;
+    private final VaultIngestionService ingestionService;
     private final Path vaultPath;
 
-    public SanitizeService(ChatClient.Builder chatClientBuilder, IndexService indexService, VaultProperties vault) {
+    public SanitizeService(ChatClient.Builder chatClientBuilder, IndexService indexService,
+                           VaultIngestionService ingestionService, VaultProperties vault) {
         this.chatClient = chatClientBuilder.build();
         this.indexService = indexService;
+        this.ingestionService = ingestionService;
         this.vaultPath = Path.of(vault.path());
     }
 
@@ -82,6 +85,7 @@ public class SanitizeService {
             }
         }
         indexService.regenerateAll();
+        ingestionService.save();
         log.info("Full sanitize with cross-check completed");
         return count;
     }
@@ -101,6 +105,7 @@ public class SanitizeService {
         }
         log.info("Sanitized {} files", count);
         indexService.regenerateAll();
+        ingestionService.save();
         return count;
     }
 
@@ -118,6 +123,7 @@ public class SanitizeService {
                             .content();
                     if (!sanitized.equals(content)) {
                         Files.writeString(file, sanitized);
+                        ingestionService.ingestFile(file);
                         log.info("Sanitized: {}", file.getFileName());
                         count++;
                     }
@@ -159,7 +165,9 @@ public class SanitizeService {
                 if (endOfName < 0) continue;
                 String filename = part.substring(0, endOfName).trim();
                 String content = part.substring(endOfName + 3).stripLeading();
-                Files.writeString(dir.resolve(filename), content);
+                Path filePath = dir.resolve(filename);
+                Files.writeString(filePath, content);
+                ingestionService.ingestFile(filePath);
             }
             log.info("Cross-checked {} files in {}", mdFiles.size(), dir.getFileName());
         } catch (Exception e) {
